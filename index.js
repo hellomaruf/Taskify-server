@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const cors = require('cors');
+const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 3000;
@@ -15,9 +15,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+console.log(process.env.USER);
 
 const uri = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.0o9qayn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -31,20 +29,32 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
+  const usersCollection = client.db("TaskifyDB").collection("users");
+
+  app.post("/users", async (req, res) => {
+    const users = req.body;
+    const query = { email: users?.email };
+    const existingUser = await usersCollection.findOne(query);
+    if (existingUser) {
+      return res.send({ message: "User is already Exist", insertedId: null });
+    }
+    const result = await usersCollection.insertOne(users);
+    res.send(result);
+  });
+
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
   }
 }
 run().catch(console.dir);
+app.get("/", (req, res) => {
+  res.send("Taskify server is Running......");
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
