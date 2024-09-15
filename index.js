@@ -51,6 +51,28 @@ async function run() {
     res.send(result);
   });
 
+  app.patch("/subtask/:title", async (req, res) => {
+    const body = req.body;
+    const subtask = body.subtask;
+
+    const title = req.params.title;
+    console.log(title);
+    const filter = { title: title };
+    const updateDoc = {
+      $push: { subtask: subtask },
+    };
+    const result = await taskCollection.updateOne(filter, updateDoc);
+    res.send(result);
+  });
+
+  // get task
+  app.get("/allTask/:email", async (req, res) => {
+    const email = req.params.email;
+    const query = { email: email };
+    const result = await taskCollection.find(query).toArray();
+    res.send(result);
+  });
+
   try {
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
