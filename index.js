@@ -30,7 +30,9 @@ const client = new MongoClient(uri, {
 
 async function run() {
   const usersCollection = client.db("TaskifyDB").collection("users");
+  const taskCollection = client.db("TaskifyDB").collection("tasks");
 
+  // Create user--------------->
   app.post("/users", async (req, res) => {
     const users = req.body;
     const query = { email: users?.email };
@@ -39,6 +41,13 @@ async function run() {
       return res.send({ message: "User is already Exist", insertedId: null });
     }
     const result = await usersCollection.insertOne(users);
+    res.send(result);
+  });
+
+  // Create Task-------------->
+  app.post("/tasks", async (req, res) => {
+    const task = req.body;
+    const result = await taskCollection.insertOne(task);
     res.send(result);
   });
 
