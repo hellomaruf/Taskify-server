@@ -54,7 +54,6 @@ async function run() {
   app.patch("/subtask/:title", async (req, res) => {
     const body = req.body;
     const subtask = body.subtask;
-
     const title = req.params.title;
     console.log(title);
     const filter = { title: title };
@@ -77,6 +76,14 @@ async function run() {
   app.delete("/deleteRootTask/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: new ObjectId(id) };
+    const result = await taskCollection.deleteOne(query);
+    res.send(result);
+  });
+
+  // delete subtask
+  app.delete("/deleteSubtask/:task", async (req, res) => {
+    const task = req.params.task;
+    const query = { task: task };
     const result = await taskCollection.deleteOne(query);
     res.send(result);
   });
